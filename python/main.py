@@ -2,6 +2,8 @@ from data import *
 import itertools
 import random
 import timeit
+import argparse
+import sys
 
 _DECK = [(1 << (rank + 16)) | (rank << 8) | 1 << (suit + 12) | PRIMES[rank] for rank, suit in
          itertools.product(range(13), range(4))]
@@ -67,7 +69,23 @@ def simulate(hand1, hand2, iter_number):
 
 
 if __name__ == '__main__':
-    start = timeit.default_timer()
-    simulate(['2c', 'Qc'], ['Th', 'Jd'], 10000)
-    end = timeit.default_timer()
-    print(end - start)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('cards', type=str, nargs=4)
+    parser.add_argument('iter_number', type=int)
+    args = parser.parse_args()
+
+    flag = True
+    if not args.iter_number >0:
+        print("Iteration count should be a positive integer")
+        flag = False
+    for item in args.cards:
+        if not item in DECK:
+            print(item, "is not a card")
+            flag = False
+
+    if flag:
+        start = timeit.default_timer()
+        # simulate(['6s', '9s'], ['9h', '7c'], args.iter_number)
+        simulate(['6s', '9s'], ['9h', '7c'], args.iter_number)
+        end = timeit.default_timer()
+        print(end - start)
