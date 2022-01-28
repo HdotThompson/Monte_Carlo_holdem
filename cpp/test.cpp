@@ -106,18 +106,27 @@ unsigned short get_hand_result(vector<string> hand, map<string, int> hashmap) {
     return best;
 }
 
-void simulate(vector<string> hand1, vector<string> hand2, int iter_number) {
+int simulate(char* argv[], int iter_number) {
     vector<string> community, cur_hand;
+    string card;
     int score1=0, score2=0, win_count1=0, win_count2=0, tie_count = 0;
 
     vector<string> deck = init_deck();
     map<string, int> hashmap = init_hashtable(deck);
     auto rng = default_random_engine (time(0));
 
-    for (string card: hand1)
-        deck.erase(remove(deck.begin(), deck.end(), card), deck.end());
-    for (string card: hand2)
-        deck.erase(remove(deck.begin(), deck.end(), card), deck.end());
+    for (int i=1;i<5;i++) {
+        card = string(argv[i]);
+        if (find(deck.begin(), deck.end(), card) == deck.end()) {
+            cout<<card<<" is not a card"<<'\n';
+            return 0;
+        } else {
+            deck.erase(remove(deck.begin(), deck.end(), card), deck.end());
+        }
+    }
+
+    vector<string> hand1 {string(argv[1]), string(argv[2])};
+    vector<string> hand2 {string(argv[3]), string(argv[4])};
 
     for (int i=0;i<iter_number;i++) {
         shuffle(begin(deck), end(deck), rng);
@@ -143,16 +152,33 @@ void simulate(vector<string> hand1, vector<string> hand2, int iter_number) {
         community.clear();
     }
 
-    cout<<"first hand winrate: "<<float(win_count1) / float(iter_number) * 100<<'\n';
+    cout<<"First hand winrate: "<<float(win_count1) / float(iter_number) * 100<<'\n';
     cout<<"Second hand winrate: "<<float(win_count2) / float(iter_number) * 100<<'\n';
     cout<<"Tie chance: "<<float(tie_count) / float(iter_number) * 100<<'\n';
+
+    return 0;
 }
 
-int main() {
-    vector<string> hand1 {"2c", "Qc"};
-    vector<string> hand2 {"Th", "Jd"};
+int main(int argc, char* argv[]) {
+    int iter_number=0;
 
-    simulate(hand1, hand2, 10000);
+    if (argc < 6) {
+        cout<<"Insufficien amount of arguments, 5 expected"<<'\n';
+        return 0;
+    }
+    try {
+        iter_number = stoi(argv[5]);
+        if (!(iter_number > 0)) {
+            cout<<"Iteration count should be a positive integer"<<'\n';
+            return 0;
+        }
+    }
+    catch(invalid_argument e) {
+        cout<<"Iteration count should be a positive integer"<<'\n';
+        return 0;
+    }
+
+    simulate(argv, iter_number);
 
     return 0;
 }
